@@ -4,9 +4,20 @@
     <h1>{{ _('Welcome to Ticino Jobs') }}</h1>
     <p>{{ _('Find your dream job in the Ticino region of Switzerland.') }}</p>
 
-    <form id="search-form">
-        <input type="text" id="search-input" placeholder="{{ _('Search for jobs...') }}">
-        <input type="submit" value="{{ _('Search') }}">
+    <form method="POST" action="{{ url_for('main.index') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.keyword.label }} {{ form.keyword() }}
+            {{ form.location.label }} {{ form.location() }}
+        </div>
+        <div>
+            {{ form.salary_min.label }} {{ form.salary_min() }}
+            {{ form.salary_max.label }} {{ form.salary_max() }}
+        </div>
+        <div>
+            {{ form.company_size.label }} {{ form.company_size() }}
+        </div>
+        {{ form.submit() }}
     </form>
 
     <h2>{{ _('Latest Job Listings') }}</h2>

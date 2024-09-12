@@ -2,11 +2,31 @@
 
 {% block content %}
     <h1>{{ _('Job Listings') }}</h1>
+    
+    <form method="POST" action="{{ url_for('main.job_listing') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.keyword.label }} {{ form.keyword() }}
+            {{ form.location.label }} {{ form.location() }}
+        </div>
+        <div>
+            {{ form.salary_min.label }} {{ form.salary_min() }}
+            {{ form.salary_max.label }} {{ form.salary_max() }}
+        </div>
+        <div>
+            {{ form.company_size.label }} {{ form.company_size() }}
+        </div>
+        {{ form.submit() }}
+    </form>
+
+    <a href="{{ url_for('main.add_mock_jobs') }}" class="btn">{{ _('Add Mock Jobs') }}</a>
+
     {% for job in jobs.items %}
         <div class="job-listing">
             <h2>{{ job.title }}</h2>
             <p>{{ _('Location') }}: {{ job.location }}</p>
-            <p>{{ _('Salary') }}: {{ job.salary }}</p>
+            <p>{{ _('Salary Range') }}: {{ job.salary_min }} - {{ job.salary_max }}</p>
+            <p>{{ _('Company Size') }}: {{ job.company_size }}</p>
             <p>{{ _('Posted') }}: {{ job.created_at.strftime('%Y-%m-%d') }}</p>
             <a href="{{ url_for('main.job_details', job_id=job.id) }}">{{ _('View Details') }}</a>
         </div>
