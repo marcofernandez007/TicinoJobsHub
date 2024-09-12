@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ _('Welcome to Ticino Jobs') }}</h1>
+    <p>{{ _('Find your dream job in the Ticino region of Switzerland.') }}</p>
+
+    <form id="search-form">
+        <input type="text" id="search-input" placeholder="{{ _('Search for jobs...') }}">
+        <input type="submit" value="{{ _('Search') }}">
+    </form>
+
+    <h2>{{ _('Latest Job Listings') }}</h2>
+    <div id="latest-jobs">
+        <!-- Latest jobs will be dynamically populated here -->
+    </div>
+{% endblock %}

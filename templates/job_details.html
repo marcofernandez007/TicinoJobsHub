@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ job.title }}</h1>
+    <p>{{ _('Location') }}: {{ job.location }}</p>
+    <p>{{ _('Salary') }}: {{ job.salary }}</p>
+    <p>{{ _('Posted') }}: {{ job.created_at.strftime('%Y-%m-%d') }}</p>
+    <h2>{{ _('Job Description') }}</h2>
+    <p>{{ job.description }}</p>
+    
+    {% if current_user.is_authenticated and not current_user.is_employer %}
+        <a href="{{ url_for('main.apply_job', job_id=job.id) }}" class="btn">{{ _('Apply Now') }}</a>
+    {% endif %}
+    
+    {% if current_user.is_authenticated and current_user == job.employer %}
+        <a href="{{ url_for('main.edit_job', job_id=job.id) }}" class="btn">{{ _('Edit Job') }}</a>
+    {% endif %}
+{% endblock %}

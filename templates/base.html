@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Ticino Jobs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="{{ url_for('main.index') }}">{{ _('Home') }}</a></li>
+                <li><a href="{{ url_for('main.job_listing') }}">{{ _('Jobs') }}</a></li>
+                {% if current_user.is_anonymous %}
+                    <li><a href="{{ url_for('main.login') }}">{{ _('Login') }}</a></li>
+                    <li><a href="{{ url_for('main.register') }}">{{ _('Register') }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('main.profile') }}">{{ _('Profile') }}</a></li>
+                    {% if current_user.is_employer %}
+                        <li><a href="{{ url_for('main.employer_dashboard') }}">{{ _('Dashboard') }}</a></li>
+                        <li><a href="{{ url_for('main.new_job') }}">{{ _('Post Job') }}</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('main.logout') }}">{{ _('Logout') }}</a></li>
+                {% endif %}
+            </ul>
+            <select id="language-switcher">
+                <option value="en" {% if g.locale == 'en' %}selected{% endif %}>English</option>
+                <option value="it" {% if g.locale == 'it' %}selected{% endif %}>Italiano</option>
+            </select>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

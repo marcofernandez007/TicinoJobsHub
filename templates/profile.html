@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ _('User Profile') }}</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.full_name.label }}<br>
+            {{ form.full_name(size=32) }}
+        </p>
+        <p>
+            {{ form.location.label }}<br>
+            {{ form.location(size=32) }}
+        </p>
+        <p>
+            {{ form.bio.label }}<br>
+            {{ form.bio(cols=50, rows=4) }}
+        </p>
+        <p>
+            {{ form.picture.label }}<br>
+            {{ form.picture() }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
