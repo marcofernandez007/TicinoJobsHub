@@ -21,6 +21,22 @@
             {{ form.password2(size=32) }}
         </p>
         <p>{{ form.is_employer() }} {{ form.is_employer.label }}</p>
+        <div id="vat_number_field" style="display: none;">
+            <p>
+                {{ form.vat_number.label }}<br>
+                {{ form.vat_number(size=20) }}
+            </p>
+        </div>
         <p>{{ form.submit() }}</p>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var isEmployerCheckbox = document.getElementById('is_employer');
+            var vatNumberField = document.getElementById('vat_number_field');
+
+            isEmployerCheckbox.addEventListener('change', function() {
+                vatNumberField.style.display = this.checked ? 'block' : 'none';
+            });
+        });
+    </script>
 {% endblock %}
