@@ -1,59 +1,47 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
-from flask_login import login_user, logout_user, login_required, current_user
-from flask_babel import _
-from app import db
-from app.models import User, Job, Application
-from app.forms import LoginForm, RegistrationForm, JobForm, ApplicationForm, SearchForm
-from app.utils import save_picture
-from sqlalchemy import and_
-import random
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import login_user, logout_user, current_user, login_required
 from urllib.parse import urlparse
+from app import db
+from app.forms import LoginForm, RegistrationForm, JobForm, ApplicationForm, SearchForm, ProfileForm
+from app.models import User, Job, Application, Profile, get_job_recommendations
+from flask_babel import _
+from app.routes import bp
 
-bp = Blueprint('main', __name__)
+# ... (keep all existing routes)
 
-@bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
-def index():
-    form = SearchForm()
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = ProfileForm()
     if form.validate_on_submit():
-        return redirect(url_for('main.job_listing', 
-                                keyword=form.keyword.data,
-                                location=form.location.data,
-                                salary_min=form.salary_min.data,
-                                salary_max=form.salary_max.data,
-                                company_size=form.company_size.data))
-    return render_template('index.html', title=_('Home'), form=form)
+        if not current_user.profile:
+            profile = Profile(user=current_user)
+            db.session.add(profile)
+        else:
+            profile = current_user.profile
+        profile.full_name = form.full_name.data
+        profile.location = form.location.data
+        profile.bio = form.bio.data
+        profile.skills = form.skills.data
+        profile.desired_salary = form.desired_salary.data
+        profile.preferred_company_size = form.preferred_company_size.data
+        db.session.commit()
+        flash(_('Your profile has been updated.'))
+        return redirect(url_for('main.profile'))
+    elif request.method == 'GET':
+        if current_user.profile:
+            form.full_name.data = current_user.profile.full_name
+            form.location.data = current_user.profile.location
+            form.bio.data = current_user.profile.bio
+            form.skills.data = current_user.profile.skills
+            form.desired_salary.data = current_user.profile.desired_salary
+            form.preferred_company_size.data = current_user.profile.preferred_company_size
+    recommended_jobs = get_job_recommendations(current_user)
+    return render_template('profile.html', title=_('Profile'), form=form, recommended_jobs=recommended_jobs)
 
-# ... (keep all other existing routes)
-
-@bp.route('/jobs', methods=['GET', 'POST'])
-def job_listing():
-    form = SearchForm()
-    page = request.args.get('page', 1, type=int)
-    
-    if form.validate_on_submit() or request.args:
-        filters = []
-        keyword = form.keyword.data or request.args.get('keyword')
-        location = form.location.data or request.args.get('location')
-        salary_min = form.salary_min.data or request.args.get('salary_min')
-        salary_max = form.salary_max.data or request.args.get('salary_max')
-        company_size = form.company_size.data or request.args.get('company_size')
-        
-        if keyword:
-            filters.append(Job.title.ilike(f'%{keyword}%'))
-        if location:
-            filters.append(Job.location.ilike(f'%{location}%'))
-        if salary_min:
-            filters.append(Job.salary_max >= salary_min)
-        if salary_max:
-            filters.append(Job.salary_min <= salary_max)
-        if company_size:
-            filters.append(Job.company_size == company_size)
-        
-        jobs = Job.query.filter(and_(*filters)).order_by(Job.created_at.desc()).paginate(page=page, per_page=10)
-    else:
-        jobs = Job.query.order_by(Job.created_at.desc()).paginate(page=page, per_page=10)
-    
-    return render_template('job_listing.html', title=_('Job Listings'), jobs=jobs, form=form)
+@bp.route('/job/<int:job_id>')
+def job_details(job_id):
+    job = Job.query.get_or_404(job_id)
+    return render_template('job_details.html', title=_('Job Details'), job=job)
 
 # ... (keep all other existing routes)

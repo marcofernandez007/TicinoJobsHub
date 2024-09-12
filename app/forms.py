@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Optional
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Optional, ValidationError
 from flask_babel import lazy_gettext as _l
 
 class LoginForm(FlaskForm):
@@ -49,3 +49,19 @@ class SearchForm(FlaskForm):
         ('501+', '501+ employees')
     ], validators=[Optional()])
     submit = SubmitField(_l('Search'))
+
+class ProfileForm(FlaskForm):
+    full_name = StringField(_l('Full Name'), validators=[DataRequired()])
+    location = StringField(_l('Location'), validators=[DataRequired()])
+    bio = TextAreaField(_l('Bio'))
+    skills = StringField(_l('Skills (comma-separated)'))
+    desired_salary = IntegerField(_l('Desired Salary'), validators=[Optional(), NumberRange(min=0)], render_kw={"step": "1000"})
+    preferred_company_size = SelectField(_l('Preferred Company Size'), choices=[
+        ('', 'Any'),
+        ('1-10', '1-10 employees'),
+        ('11-50', '11-50 employees'),
+        ('51-200', '51-200 employees'),
+        ('201-500', '201-500 employees'),
+        ('501+', '501+ employees')
+    ], validators=[Optional()])
+    submit = SubmitField(_l('Update Profile'))

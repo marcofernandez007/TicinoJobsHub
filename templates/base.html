@@ -13,7 +13,8 @@
                 <li><a href="{{ url_for('main.index') }}">{{ _('Home') }}</a></li>
                 <li><a href="{{ url_for('main.job_listing') }}">{{ _('Jobs') }}</a></li>
                 {% if current_user.is_anonymous %}
-                    <!-- Removed register link -->
+                    <li><a href="{{ url_for('main.login') }}">{{ _('Login') }}</a></li>
+                    <li><a href="{{ url_for('main.register') }}">{{ _('Register') }}</a></li>
                 {% else %}
                     <li><a href="{{ url_for('main.profile') }}">{{ _('Profile') }}</a></li>
                     {% if current_user.is_employer %}

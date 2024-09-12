@@ -9,7 +9,7 @@ import os
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
-login.login_view = 'auth.login'
+login.login_view = 'main.login'
 babel = Babel()
 
 def create_app(config_class=Config):

@@ -3,27 +3,53 @@
 {% block content %}
     <h1>{{ _('Job Listings') }}</h1>
     
-    <form method="POST" action="{{ url_for('main.job_listing') }}">
-        {{ form.hidden_tag() }}
+    <form method="GET" action="{{ url_for('main.job_listing') }}">
         <div>
-            {{ form.keyword.label }} {{ form.keyword() }}
-            {{ form.location.label }} {{ form.location() }}
+            <label for="keyword">{{ _('Keyword') }}</label>
+            <input type="text" id="keyword" name="keyword" value="{{ request.args.get('keyword', '') }}">
+            
+            <label for="location">{{ _('Location') }}</label>
+            <input type="text" id="location" name="location" value="{{ request.args.get('location', '') }}">
         </div>
         <div>
-            {{ form.salary_min.label }} {{ form.salary_min() }}
-            {{ form.salary_max.label }} {{ form.salary_max() }}
+            <label for="salary_min">{{ _('Minimum Salary') }}</label>
+            <input type="number" id="salary_min" name="salary_min" value="{{ request.args.get('salary_min', '') }}" step="1000">
+            
+            <label for="salary_max">{{ _('Maximum Salary') }}</label>
+            <input type="number" id="salary_max" name="salary_max" value="{{ request.args.get('salary_max', '') }}" step="1000">
         </div>
         <div>
-            {{ form.company_size.label }} {{ form.company_size() }}
+            <label for="company_size">{{ _('Company Size') }}</label>
+            <select id="company_size" name="company_size">
+                <option value="">{{ _('Any') }}</option>
+                <option value="1-10" {% if request.args.get('company_size') == '1-10' %}selected{% endif %}>1-10 {{ _('employees') }}</option>
+                <option value="11-50" {% if request.args.get('company_size') == '11-50' %}selected{% endif %}>11-50 {{ _('employees') }}</option>
+                <option value="51-200" {% if request.args.get('company_size') == '51-200' %}selected{% endif %}>51-200 {{ _('employees') }}</option>
+                <option value="201-500" {% if request.args.get('company_size') == '201-500' %}selected{% endif %}>201-500 {{ _('employees') }}</option>
+                <option value="501+" {% if request.args.get('company_size') == '501+' %}selected{% endif %}>501+ {{ _('employees') }}</option>
+            </select>
         </div>
-        {{ form.submit() }}
+        <button type="submit">{{ _('Search') }}</button>
     </form>
 
-    <a href="{{ url_for('main.add_mock_jobs') }}" class="btn">{{ _('Add Mock Jobs') }}</a>
+    {% if current_user.is_authenticated and not current_user.is_employer and recommended_jobs %}
+        <h2>{{ _('Recommended Jobs') }}</h2>
+        {% for job, score in recommended_jobs %}
+            <div class="job-listing recommended">
+                <h3>{{ job.title }} ({{ _('Match Score') }}: {{ score }})</h3>
+                <p>{{ _('Location') }}: {{ job.location }}</p>
+                <p>{{ _('Salary Range') }}: {{ job.salary_min }} - {{ job.salary_max }}</p>
+                <p>{{ _('Company Size') }}: {{ job.company_size }}</p>
+                <p>{{ _('Posted') }}: {{ job.created_at.strftime('%Y-%m-%d') }}</p>
+                <a href="{{ url_for('main.job_details', job_id=job.id) }}">{{ _('View Details') }}</a>
+            </div>
+        {% endfor %}
+    {% endif %}
 
+    <h2>{{ _('All Job Listings') }}</h2>
     {% for job in jobs.items %}
         <div class="job-listing">
-            <h2>{{ job.title }}</h2>
+            <h3>{{ job.title }}</h3>
             <p>{{ _('Location') }}: {{ job.location }}</p>
             <p>{{ _('Salary Range') }}: {{ job.salary_min }} - {{ job.salary_max }}</p>
             <p>{{ _('Company Size') }}: {{ job.company_size }}</p>
@@ -33,9 +59,9 @@
     {% endfor %}
 
     {% if jobs.has_prev %}
-        <a href="{{ url_for('main.job_listing', page=jobs.prev_num) }}">{{ _('Previous') }}</a>
+        <a href="{{ url_for('main.job_listing', page=jobs.prev_num, **request.args) }}">{{ _('Previous') }}</a>
     {% endif %}
     {% if jobs.has_next %}
-        <a href="{{ url_for('main.job_listing', page=jobs.next_num) }}">{{ _('Next') }}</a>
+        <a href="{{ url_for('main.job_listing', page=jobs.next_num, **request.args) }}">{{ _('Next') }}</a>
     {% endif %}
 {% endblock %}
